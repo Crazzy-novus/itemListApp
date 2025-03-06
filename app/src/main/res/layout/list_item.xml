@@ -41,13 +41,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:textSize="22sp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="50dp"
-        android:text="30"
+        android:layout_toStartOf="@+id/delete_icon"
+        android:text="@string/_30"
+        android:layout_marginEnd="12dp"
         tools:ignore="RelativeOverlap" />
 
+    <ImageView
+        android:id="@+id/delete_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/delete_icon"
+        android:contentDescription="@string/delete_icon" />
 
 </RelativeLayout>

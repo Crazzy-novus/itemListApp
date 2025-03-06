@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp.android)
 }
 
 android {
@@ -41,7 +42,11 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.room.runtime)
 
+
+
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -62,6 +67,8 @@ dependencies {
     implementation(libs.androidx.window)
     implementation (libs.circleimageview)
     implementation(libs.gson)
+    implementation(libs.material)
+    implementation(libs.androidx.room.runtime)
     testImplementation(libs.junit)
     implementation(libs.androidx.material3.adaptive.navigation.suite)
     androidTestImplementation(libs.androidx.junit)

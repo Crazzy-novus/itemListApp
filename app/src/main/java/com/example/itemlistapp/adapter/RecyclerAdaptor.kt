@@ -1,81 +1,85 @@
+
 package com.example.itemlistapp.adapter
 
 import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.itemlistapp.R
+import com.example.itemlistapp.databinding.ListItemBinding
 import com.example.itemlistapp.model.Item
 
 class RecyclerAdaptor(
-    private var itemList: MutableList<Item>,
+    private var itemList: MutableList<Item>
+) : RecyclerView.Adapter<RecyclerAdaptor.MyViewHolder>() {
 
-) : RecyclerView.Adapter<RecyclerAdaptor.MyViewHolder>()
-{
     private lateinit var onClickListener: OnItemClickListener
+    var itemId = -1  // TODO Need to remove from global
 
-    interface OnItemClickListener
-    {
+    interface OnItemClickListener {
         fun onItemClick(position: Int)
+        fun onItemDeleteIconClick(position: Int)
     }
 
     // Set the click listener for the adapter
-    fun setOnClickListener(listener: OnItemClickListener ) {
+    fun setOnClickListener(listener: OnItemClickListener) {
         onClickListener = listener
     }
 
-    @SuppressLint("ResourceType")
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): MyViewHolder
+    fun deleteItem(itemPosition : Int)
     {
-
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent,false)
-        return MyViewHolder(itemView, onClickListener)
+        itemList.removeAt(itemPosition)
+        notifyItemRemoved(itemPosition)
     }
 
-    override fun getItemCount(): Int
-    {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+        val binding = ListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MyViewHolder(binding, onClickListener)
+    }
+
+    override fun getItemCount(): Int {
         return itemList.size
     }
 
-    @SuppressLint("SetTextI18n", "Recycle")
-    override fun onBindViewHolder(
-        holder: MyViewHolder,
-        position: Int
-    )
-    {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val currentItem = itemList[position]
-        holder.itemName.text = currentItem.itemName
-        holder.itemSkuNumber.text = currentItem.skuNumber.toString()
-        holder.itemStockQuantity.text = currentItem.stockQuantity.toString()
-        holder.itemImage.setImageURI(Uri.parse(currentItem.itemImageUri))
-
+        holder.bind(currentItem)
     }
 
-    class MyViewHolder (
-        itemView : View,
-        listener: OnItemClickListener
-    ) : RecyclerView.ViewHolder(itemView)
-    {
-         val itemName : TextView = itemView.findViewById(R.id.list_item_name)
-        val itemSkuNumber : TextView = itemView.findViewById(R.id.list_sku_num)
-        val itemStockQuantity : TextView = itemView.findViewById(R.id.list_stock_qtn)
-        val itemImage :ImageView = itemView.findViewById(R.id.list_item_image)
+    @SuppressLint("NotifyDataSetChanged")
+    fun filteredItemList(filteredItemList: List<Item>) {
+        itemList = filteredItemList as MutableList<Item> // TODO need to verify
+        notifyDataSetChanged()
+    }
+
+    fun addItem(item : Item) {
+        itemList.add(item)
+        notifyItemInserted(itemList.size - 1)
+    }
+
+
+    class MyViewHolder(
+        private val binding: ListItemBinding,
+        private var listener: OnItemClickListener
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            itemView.setOnClickListener()
+            binding.root.setOnClickListener {
+                listener.onItemClick(absoluteAdapterPosition)
+            }
+        }
+
+        @SuppressLint("SetTextI18n")
+        fun bind(item: Item) {
+            binding.listItemName.text = item.itemName
+            binding.listSkuNum.text = item.skuNumber.toString()
+            binding.listStockQtn.text = item.stockQuantity.toString()
+            binding.listItemImage.setImageURI(Uri.parse(item.itemImageUri))
+
+            binding.deleteIcon.setOnClickListener()
             {
-                listener.onItemClick(
-                    position = getAbsoluteAdapterPosition(),
-                )
+                listener.onItemDeleteIconClick(absoluteAdapterPosition)
             }
         }
     }

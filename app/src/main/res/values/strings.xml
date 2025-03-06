@@ -72,4 +72,13 @@
     <string name="editbutton">EditButton</string>
     <string name="close">Close</string>
     <string name="empty_layout_indication">empty Layout Indication</string>
+    <string name="search_name">Search name</string>
+    <string name="filter">Filter</string>
+    <string name="descending">Descending</string>
+    <string name="ascending">Ascending</string>
+    <string name="enter_only_number">Enter only Number</string>
+    <string name="name_cannot_be_empty">Name Cannot be Empty</string>
+    <string name="searchbar">SearchBar</string>
+    <string name="delete_icon">Delete Icon</string>
+    <string name="_30">30</string>
 </resources>

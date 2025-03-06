@@ -8,34 +8,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import com.example.itemlistapp.databinding.ItemDetailsBinding
-import com.example.itemlistapp.model.Item
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class ItemDetailsBottomSheet(
-    private var itemObject: Item,
-    private var position: Int,
-    private var callBackListener : ItemEditCallBack? = null
-) : BottomSheetDialogFragment() {
-
-
-    private var toggle = true // To switch icon
+class ItemDetailsFragment : Fragment() {
+    private lateinit var binding: ItemDetailsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        container: ViewGroup?, savedInstanceState: Bundle?,
     ): View {
-        val view = inflater.inflate(R.layout.bottom_sheet, container, false)
-        return view
+        // Use DataBindingUtil to inflate the layout
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.item_details, container, false)
+        return binding.root
     }
 
-    @SuppressLint("MissingInflatedId", "SetTextI18n")
+    @SuppressLint("MissingInflatedId")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val fragmentTransaction = childFragmentManager.beginTransaction()
-        fragmentTransaction.add(R.id.bottomSheetFragment, ItemDetailsFragment())
-        fragmentTransaction.commit()
+
+
 
 //        binding.item = itemObject
 //
@@ -66,12 +59,10 @@ class ItemDetailsBottomSheet(
 //                toggle = !toggle
 //            }
 //        }
+//
+
+
     }
 
 
-
-    interface ItemEditCallBack
-    {
-        fun getEditedItem(itemObj : Item, position: Int)
-    }
 }

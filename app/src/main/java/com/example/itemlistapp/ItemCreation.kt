@@ -1,9 +1,7 @@
-
 package com.example.itemlistapp
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,30 +10,40 @@ import android.view.ViewGroup
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
-import androidx.fragment.app.Fragment
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import com.example.itemlistapp.databinding.FragmentItemCreationBinding
 import com.example.itemlistapp.model.Item
 
-class ItemCreation : Fragment()
-{
+
+class ItemCreation : Fragment() {
 
     private lateinit var binding: FragmentItemCreationBinding
-    var itemImageUri : Uri? = null
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        inflater: LayoutInflater,
+        container: ViewGroup?, savedInstanceState: Bundle?,
     ): View
     {
         // Use DataBindingUtil to inflate the layout
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_item_creation, container, false)
+        return binding.root
+    }
+
+    @SuppressLint("MissingInflatedId")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.toolbar.setNavigationOnClickListener()
+        {
+            removeFragment()
+        }
 
         // Initialize an empty Item object for binding
-        val item = Item(itemImageUri = "", itemName = "", skuNumber = 0, stockQuantity = 0, description = "")
+        var item = Item()
         binding.item = item
-
         // Registers a photo picker activity launcher in single-select mode
         val pickMedia = registerForActivityResult(PickVisualMedia()) { uri ->
             if (uri != null)
@@ -44,8 +52,7 @@ class ItemCreation : Fragment()
                 context?.contentResolver?.takePersistableUriPermission(uri, flag)
                 // Persist permissions
                 binding.itemImage.setImageURI(uri)
-                itemImageUri = uri // Update the item's image URI
-
+                item.itemImageUri = uri.toString() // Update the item's image URI
                 Log.d("PhotoPicker", "Selected URI: $uri")
             }
             else
@@ -53,6 +60,7 @@ class ItemCreation : Fragment()
                 Log.d("PhotoPicker", "No media selected")
             }
         }
+
         binding.itemImage.setOnClickListener()
         {
             pickMedia.launch(PickVisualMediaRequest(ImageOnly))
@@ -60,31 +68,36 @@ class ItemCreation : Fragment()
 
         binding.saveBtn.setOnClickListener()
         {
-            item.itemName = binding.itemNameEt.text.toString()
-            item.skuNumber = binding.skuNumberEt.text.toString().toIntOrNull() ?: 0
-            item.stockQuantity = binding.stockInQuantityEt.text.toString().toIntOrNull() ?: 0
-            item.description = binding.descriptionEt.text.toString()
-            item.itemImageUri = itemImageUri.toString()
 
-            // Pass new item to MainActivity
-            (activity as? MainActivity)?.onItemCreated(item.copy())
-//            binding.item = resetDefault()
+            if (item.itemName.isEmpty())
+            {
+                binding.nameErrorText.visibility = View.VISIBLE
+            }
+            else
+            {
+                binding.nameErrorText.visibility = View.GONE
+                // Pass new item to MainActivity
 
-            binding.itemNameEt.setText("")
-            binding.skuNumberEt.setText("")
-            binding.stockInQuantityEt.setText("")
-            binding.descriptionEt.setText("")
-            binding.itemImage.setImageResource(R.drawable.default_image)
+                val result = MyApplication.getDatabase()?.itemDao()?.insertItem(item = item.copy()) // TODO need to add check
+                Log.d("Item1234455","$result")
+                setFragmentResult("requestKey", bundleOf("bundleKey" to item.copy()))
+                removeFragment()
+
+                // Reset fields
+                item = Item() // TODO need to verify this is correct
+
+            }
         }
-
-        return binding.root
     }
-    // TODO verify which is recommended
 
-//    private fun resetDefault( ) : Item
-//    {
-//        return Item(itemName = "", skuNumber = 0, stockQuantity = 0, description = "")
-//
-//    }
+    private fun removeFragment()
+    {
+        parentFragmentManager.beginTransaction().remove( this).commitNow()
+    }
 
+    override fun onPause() {
+        super.onPause()
+        Log.d("On Pause Called", "On Pause Fragment Item Creation")
+    }
 }
+
